@@ -1,12 +1,11 @@
-package at.florian.games.strategy_pattern;
+package at.florian.games.observer_pattern;
 
 import at.florian.games.first_game.Actor;
-import at.florian.games.observer_pattern.ObserverKeyListener;
+import at.florian.games.observer_pattern.actors.Player;
+import at.florian.games.observer_pattern.movement.MoveByKeys;
 import at.florian.games.strategy_pattern.actors.Circle;
 import at.florian.games.strategy_pattern.actors.Rectangle;
 import at.florian.games.strategy_pattern.movement.MoveAround;
-import at.florian.games.strategy_pattern.movement.MoveRightnLeft;
-import at.florian.games.strategy_pattern.movement.MoveUpnDown;
 import at.florian.games.strategy_pattern.movement.MovementStrategy;
 import org.newdawn.slick.*;
 
@@ -15,23 +14,27 @@ import java.util.List;
 
 public class GameLauncher extends BasicGame {
     private List<Actor> actors;
+    private List<ObserverKeyListener> observerKeyListeners = new ArrayList<>();
+
     public GameLauncher(String title) {
         super(title);
     }
 
     @Override
     public void init(GameContainer gameContainer) throws SlickException {
-        MovementStrategy moveUpnDown = new MoveUpnDown(100, 100, 1f);
-        MovementStrategy moveRightnLeft = new MoveRightnLeft(100, 100, 0.5f);
-        MovementStrategy moveAround = new MoveAround(100,100,0.8f);
+        MovementStrategy moveAround = new MoveAround(100, 100, 0.8f);
+        MoveByKeys moveByKeys = new MoveByKeys(100, 100);
+
+        this.observerKeyListeners.add(moveByKeys);
+
         this.actors = new ArrayList<Actor>();
 
-        Circle circle = new Circle(100, moveRightnLeft);
-        Rectangle rectangle = new Rectangle(50,100,moveUpnDown);
-        Rectangle rectangle1 = new Rectangle(50,100,moveAround);
+        Player player = new Player(50,50,moveByKeys);
+        Rectangle rectangle1 = new Rectangle(50, 100, moveAround);
 
-        this.actors.add(circle);
-        this.actors.add(rectangle);
+        moveByKeys.addItemColorChanger(rectangle1);
+
+        this.actors.add(player);
         this.actors.add(rectangle1);
     }
 
@@ -46,6 +49,13 @@ public class GameLauncher extends BasicGame {
     public void render(GameContainer gameContainer, Graphics graphics) throws SlickException {
         for (Actor actor : this.actors) {
             actor.render(graphics);
+        }
+    }
+    @Override
+    public void keyPressed(int key, char c) {
+        super.keyPressed(key, c);
+        for (ObserverKeyListener observerKeyListener : observerKeyListeners) {
+            observerKeyListener.onKeyPressed(key);
         }
     }
 

@@ -1,5 +1,7 @@
 package at.florian.games.strategy_pattern.movement;
 
+import at.florian.games.first_game.Rectangle;
+
 public class MoveUpnDown implements MovementStrategy {
     private float x, y, speed;
 
